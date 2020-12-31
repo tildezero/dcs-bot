@@ -88,6 +88,17 @@ class Fun_Commands(commands.Cog):
         await ctx.send(f"**{ctx.author.name}** has paid their respect {reason}{random.choice(hearts)}")
 
     @commands.command()
+    async def poll(self, ctx, *, question: commands.clean_content):
+        """ Make a poll to ask people questions """
+        await ctx.message.delete()
+        pollembed = discord.Embed(title= question, colour = discord.Colour(0x7289da))
+        pollembed.set_author(name=f"{ctx.author.name} asks: ")
+        pogmessage = await ctx.send(embed=pollembed)
+        await pogmessage.add_reaction("\U0001f44d")
+        await pogmessage.add_reaction("\U0001f44e")
+        await pogmessage.add_reaction("\U0001f90f")
+    
+    @commands.command()
     async def supreme(self, ctx, *, text: commands.clean_content(fix_channel_mentions=True)):
         """ Make a fake Supreme logo
 

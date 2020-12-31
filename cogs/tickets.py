@@ -14,6 +14,7 @@ class Tickets(commands.Cog):
         if payload.message_id == 788271918717468673 and str(payload.emoji) == "✉️":
             g = self.bot.get_guild(payload.guild_id)
             t = g.get_channel(788158807770791936)
+            
             carry_role = g.get_role(782256235259887616)
             helper_role = g.get_role(782262575264956477)
             mod_role = g.get_role(784451557528698900)
@@ -21,7 +22,7 @@ class Tickets(commands.Cog):
                 g.default_role: discord.PermissionOverwrite(read_messages=False),
                 g.me:discord.PermissionOverwrite(read_messages=True),
                 payload.member: discord.PermissionOverwrite(read_messages=True,send_messages=True,attach_files=True,embed_links=True),
-                carry_role: discord.PermissionOverwrite(read_messages=True,send_messages=True,attach_files=True,embed_links=True),
+                # carry_role: discord.PermissionOverwrite(read_messages=True,send_messages=True,attach_files=True,embed_links=True),
                 helper_role: discord.PermissionOverwrite(read_messages=True,send_messages=True,attach_files=True,embed_links=True),
                 mod_role: discord.PermissionOverwrite(read_messages=True,send_messages=True,attach_files=True,embed_links=True) 
             }
@@ -40,6 +41,33 @@ class Tickets(commands.Cog):
         
             else:
                 await c.send(f"ok, a floor{msg.content} carry it is. on to the next question!")
+                
+                pings = {
+                    "1": 782258133581430784,
+                    "2": 782258239457722410,
+                    "3": 782258242331738144,
+                    "4": 782258245045452800,
+                    "5": 782258263949180940,
+                    "6": 782258268369584179,
+                    "7": 782258271968690186
+                }
+                g = self.bot.get_guild(payload.guild_id)
+                t = g.get_channel(788158807770791936)
+            
+                # carry_role = g.get_role(782256235259887616)
+                helper_role = g.get_role(782262575264956477)
+                mod_role = g.get_role(784451557528698900)
+                carry_role = g.get_role(pings[msg.content])
+                overwrites = {
+                    g.default_role: discord.PermissionOverwrite(read_messages=False),
+                    g.me:discord.PermissionOverwrite(read_messages=True),
+                    payload.member: discord.PermissionOverwrite(read_messages=True,send_messages=True,attach_files=True,embed_links=True),
+                    carry_role: discord.PermissionOverwrite(read_messages=True,send_messages=True,attach_files=True,embed_links=True),
+                    helper_role: discord.PermissionOverwrite(read_messages=True,send_messages=True,attach_files=True,embed_links=True),
+                    mod_role: discord.PermissionOverwrite(read_messages=True,send_messages=True,attach_files=True,embed_links=True) 
+                }
+                
+                await c.edit(overwrites=overwrites)
                 await c.edit(name=f"f{msg.content}-carry")
                 await c.send("What score of carry do you want? (S, S+, Completion)\nNote: F1-4 only has completion. You have 60 seconds to respond.")
             def checkscore(m):
@@ -107,7 +135,7 @@ IGN - {ignmsg.content}""")
     @commands.guild_only()
     async def close(self, ctx):
         carry_channels = ["f1-carry","f2-carry","f3-carry","f4-carry","f5-carry","f6-carry","f7-carry"]
-        if not ctx.channel.name in carry_channels:
+        if ctx.channel.name not in carry_channels:
             await ctx.send("not a ticket channel!")
             return
         else:
