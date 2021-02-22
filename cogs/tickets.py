@@ -128,9 +128,18 @@ IGN - {ignmsg.content}""")
                 await c.send(f"ok, closing the ticket in 5 seconds")
                 await asyncio.sleep(5)
                 await c.delete()
-        
-
-
+    
+    @commands.has_any_role(800794819009052672, 782256235259887616)
+    @commands.command()
+    @commands.guild_only()
+    async def claim(self, ctx): 
+        carry_channels = ["f1-carry","f2-carry","f3-carry","f4-carry","f5-carry","f6-carry","f7-carry"]
+        if ctx.channel.name not in carry_channels:
+            await ctx.send("not a ticket channel!")
+            return
+        else:
+            await ctx.send('soon')
+    
     @commands.command()
     @commands.guild_only()
     async def close(self, ctx):
@@ -147,12 +156,13 @@ IGN - {ignmsg.content}""")
             msg = await self.bot.wait_for('message', check = check, timeout = 60.0)
         except asyncio.TimeoutError:
             await ctx.send("Oh no! You did not confirm, so this ticket will stay open")
+            return
         
         else:
             await ctx.send(f"Closing the ticket in 5 seconds, <@{msg.author.id}>!")
         
-        await asyncio.sleep(5)
-        await ctx.channel.delete()
+            await asyncio.sleep(5)
+            await ctx.channel.delete()
 
 def setup(bot):
     bot.add_cog(Tickets(bot))
