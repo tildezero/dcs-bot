@@ -1,7 +1,7 @@
 import discord
 from discord.ext import commands
 import asyncio
-from utils import permissions, default, ticket_utils
+from utils import default, ticket_utils
 import aiohttp
 from replit import db
 
@@ -13,8 +13,12 @@ class Tickets(commands.Cog):
     @commands.Cog.listener()
     async def on_raw_reaction_add(self, payload):
         
-        if payload.message_id == 788271918717468673 and str(payload.emoji) == "✉️":
+        if payload.message_id == 839602944311164950 and str(payload.emoji) == "✉️":
+            
             g = self.bot.get_guild(payload.guild_id)
+            # ctc = g.get_channel(payload.channel_id)
+            # ticmess = await ctc.fetch_message(payload.message_id)
+            # await ticmess.remove_reaction("✉️", payload.member)
             t = g.get_channel(788158807770791936)
             
             carry_role = g.get_role(782256235259887616)
@@ -22,7 +26,6 @@ class Tickets(commands.Cog):
                 g.default_role: discord.PermissionOverwrite(read_messages=False),
                 g.me:discord.PermissionOverwrite(read_messages=True),
                 payload.member: discord.PermissionOverwrite(read_messages=True,send_messages=True,attach_files=True,embed_links=True),
-                # carry_role: discord.PermissionOverwrite(read_messages=True,send_messages=True,attach_files=True,embed_links=True),
                 
             }
             c = await t.create_text_channel(name=f"ticket-{payload.member.id}", overwrites= overwrites)
@@ -54,21 +57,12 @@ class Tickets(commands.Cog):
                     "7": 782258271968690186
                 }
                 g = self.bot.get_guild(payload.guild_id)
+                t = g.get_channel(788158807770791936)             
+                carry_role = g.get_role(pings[msg.content])
                 t = g.get_channel(788158807770791936)
             
-                # carry_role = g.get_role(782256235259887616)
              
                 carry_role = g.get_role(pings[msg.content])
-                # overwrites = {
-                #     g.default_role: discord.PermissionOverwrite(read_messages=False),
-                #     g.me:discord.PermissionOverwrite(read_messages=True),
-                #     payload.member: discord.PermissionOverwrite(read_messages=True,send_messages=True,attach_files=True,embed_links=True),
-                #     carry_role: discord.PermissionOverwrite(read_messages=True,send_messages=True,attach_files=True,embed_links=True),
-                #     helper_role: discord.PermissionOverwrite(read_messages=True,send_messages=True,attach_files=True,embed_links=True),
-                #     mod_role: discord.PermissionOverwrite(read_messages=True,send_messages=True,attach_files=True,embed_links=True) 
-                # }
-                
-                # await c.edit(overwrites=overwrites)
                 await c.edit(name=f"f{msg.content}-carry")
                 await c.send("What score of carry do you want? (S, S+, Completion)\nNote: F1-4 only has completion. You have 60 seconds to respond.")
             def checkscore(m):
@@ -79,13 +73,39 @@ class Tickets(commands.Cog):
                 await c.send("you didn't send any message in this channel for 60 seconds... closing this ticket in 5 seconds")
                 await asyncio.sleep(5)
                 await c.delete()
-                
             else:
+              await c.send(f"Ok! {scoremsg.content.title()} it is. Few more questions, then a carrier will be on their way")
+              await c.send("Do you want a bulk carry? (Multiple Carriers) answer with y/yes or n/no, you have 60 seconds to respond")
+            def checkBulk(m):
+              return m.author == payload.member and m.channel.id == c.id and m.content.lower() in ['y', 'yes', 'n', 'no']
+            try:
+              bulkmsg = await self.bot.wait_for('message', check=checkBulk, timeout = 60.0)
+            except asyncio.TimeoutError:
+                await c.send("you didn't send any message in this channel for 60 seconds... closing this ticket in 5 seconds")
+                await asyncio.sleep(5)
+                return await c.delete()
+            else:
+                if bulkmsg.content.lower() in ['y', 'yes']:
+                  to_bulk = True
+                if bulkmsg.content.lower() in ['n', 'no']:
+                  to_bulk = False
+                st = "a bulk carry" if to_bulk else "a non-bulk-carry"
+                await c.send(f"Ok! {st} it is.")
+                await c.send("If you chose bulk-carries in the last question, how many carrys do you need? (just type x if you said no to the last question)")
                 await c.send(f"Ok! {scoremsg.content.title()} it is. Last question, then a carrier will be on their way")
                 await c.send("What is your minecraft IGN? You have 60 seconds to respond.")
                 score = scoremsg.content.lower()
             def checkign(m):
                 return m.author == payload.member and m.channel.id == c.id
+            try:
+              num_msg = await self.bot.wait_for("message", check=checkign, timeout = 60.0)
+            except asyncio.TimeoutError:
+                await c.send("you didn't send any message in this channel for 60 seconds... closing this ticket in 5 seconds")
+                await asyncio.sleep(5)
+                return await c.delete()
+            else:
+              await c.send("i've noted that down, last question and then you can recieve your carry!")
+              await c.send("what is your minecraft IGN? you have 60 seconds to respond")
             try:
                 ignmsg = await self.bot.wait_for('message', check = checkign, timeout = 300.0)
             except asyncio.TimeoutError:
@@ -112,14 +132,19 @@ class Tickets(commands.Cog):
                     carry_role: discord.PermissionOverwrite(read_messages=True,send_messages=True,attach_files=True,embed_links=True)
                 }
                 await c.edit(overwrites=overwrites)
-                await c.send(f"""Thanks! A carrier will be coming shortly <@&{pings[msg.content]}>
+                noc = "N/A" if num_msg.content.lower() == "x" else num_msg.content.lower()
+                info_msg = await c.send(f"""Thanks! A carrier will be coming shortly <@&{pings[msg.content]}>
+                
                 
 Info for carrier:
 Floor - {msg.content}
 Requested score - {scoremsg.content.title()}
 IGN - {ignmsg.content}
+Price - {await ticket_utils.give_price(floor, score, to_bulk)}
+Bulk Carry - {to_bulk}
+Number of Carries (for bulk carries) - {noc}
 Price - {await ticket_utils.give_price(floor, score)}""")
-        #add: ping floor carriers
+                await info_msg.pin()
 
         @commands.Cog.listener()
         async def on_raw_reaction_add(self, payload):
@@ -174,6 +199,7 @@ Price - {await ticket_utils.give_price(floor, score)}""")
             return
         
         else:
+          del db[str(ctx.channel.id)]
           messages = await ctx.channel.history(limit=None, oldest_first=True).flatten()
           ticketContent = " ".join([f"{message.content} | {message.author.name}\n" for message in messages])
         async with aiohttp.ClientSession() as cs:
@@ -182,10 +208,10 @@ Price - {await ticket_utils.give_price(floor, score)}""")
             ch = ctx.guild.get_channel(814902983392886804)
             await ch.send(f"Transcript for <#{ctx.channel.id}>\n https://hst.sh/{resp['key']}")
             await ctx.send(f"Closing the ticket in 5 seconds, <@{msg.author.id}>!")
-        
             await asyncio.sleep(5)
             await ctx.channel.delete()
 
 def setup(bot):
     bot.add_cog(Tickets(bot))
+
 
