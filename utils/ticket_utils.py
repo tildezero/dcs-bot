@@ -66,3 +66,7 @@ async def give_price(floor: str, score: str, bulk: bool = False):
       return s_price[floor]
     if score.lower() == "s+":
       return s_plus_price[floor]
+
+      return s_plus_price[floor]
+
+
