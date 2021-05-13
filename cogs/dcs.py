@@ -14,6 +14,37 @@ class DCS(commands.Cog):
         self.session = aiohttp.ClientSession()
     
     @commands.command()
+    async def isvedranonline(self, ctx):
+      r = await http.get("https://api.slothpixel.me/api/players/vedran", res_method = "json")
+      if r['online']:
+        await ctx.send("vedran online")
+      else:
+        await ctx.send("vedran not on the line 😭")
+    
+    @commands.has_any_role(800794819009052672, 782256235259887616 )
+    @commands.command()
+    async def resign(self, ctx, user: discord.Member = None):
+      roles = [782258245045452800,
+          782258133581430784, 
+          782258263949180940,
+          782258239457722410, 
+          782258271968690186, 
+          782258242331738144, 
+          782258268369584179, 
+          782256235259887616,
+          814446893584089168
+      ]
+      staff_role = ctx.guild.get_role(800794819009052672)
+      if not staff_role in ctx.author.roles and user != None:
+        return await ctx.send("You can't remove someone else's carry roles!")
+      u = user or ctx.author
+      for r in roles:
+        role = ctx.guild.get_role(r)
+        await u.remove_roles(role)
+      await ctx.send("I've removed your carrier roles. Thanks for being a carrier o7")
+        
+    
+    @commands.command()
     async def scammer(self, ctx, ign: str):
       uuid_data = await self.session.get(f"https://api.mojang.com/users/profiles/minecraft/{ign}")
       if uuid_data.status == 204:
