@@ -16,9 +16,6 @@ class Tickets(commands.Cog):
         if payload.message_id == 839602944311164950 and str(payload.emoji) == "✉️":
             
             g = self.bot.get_guild(payload.guild_id)
-            # ctc = g.get_channel(payload.channel_id)
-            # ticmess = await ctc.fetch_message(payload.message_id)
-            # await ticmess.remove_reaction("✉️", payload.member)
             t = g.get_channel(788158807770791936)
             
             carry_role = g.get_role(782256235259887616)
@@ -75,7 +72,7 @@ class Tickets(commands.Cog):
                 await c.delete()
             else:
               await c.send(f"Ok! {scoremsg.content.title()} it is. Few more questions, then a carrier will be on their way")
-              await c.send("Do you want a bulk carry? (Multiple Carriers) answer with y/yes or n/no, you have 60 seconds to respond")
+              await c.send("Do you want a bulk carry? (Multiple Carries) answer with y/yes or n/no, you have 60 seconds to respond")
             def checkBulk(m):
               return m.author == payload.member and m.channel.id == c.id and m.content.lower() in ['y', 'yes', 'n', 'no']
             try:
