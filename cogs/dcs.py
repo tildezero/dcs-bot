@@ -3,7 +3,7 @@ from discord.ext import commands
 from discord.ext.commands.cooldowns import BucketType
 import aiohttp
 from utils import default, ticket_utils, http
-from replit import db
+# from replit import db
 import json
 import importlib
 
@@ -92,50 +92,50 @@ class DCS(commands.Cog):
       price = await ticket_utils.give_price(floor, score)
       await ctx.send(f"Price for that carry would be about {price} coins")
     
-    @commands.cooldown(1, 3600, BucketType.user)
-    @commands.command(cooldown_after_parsing=True)
-    async def rep(self, ctx, user: discord.Member):
-      if user == ctx.author:
-        return await ctx.send("You can't rep yourself!")
-      if user.bot:
-        return await ctx.send("you can't give rep to bots!")
-      try:
-        curr_rep = db[str(user.id)]
-      except KeyError:
-        db[str(user.id)] = 1
-        await ctx.send(f"sucessfully gave {user.name}#{user.discriminator} 1 reputation!")
-      else:
-        new_rep = curr_rep + 1
-        db[str(user.id)] = new_rep
-        await ctx.send(f"sucessfully gave {user.name}#{user.discriminator} 1 reputation!")
+    # @commands.cooldown(1, 3600, BucketType.user)
+    # @commands.command(cooldown_after_parsing=True)
+    # async def rep(self, ctx, user: discord.Member):
+    #   if user == ctx.author:
+    #     return await ctx.send("You can't rep yourself!")
+    #   if user.bot:
+    #     return await ctx.send("you can't give rep to bots!")
+    #   try:
+    #     curr_rep = db[str(user.id)]
+    #   except KeyError:
+    #     db[str(user.id)] = 1
+    #     await ctx.send(f"sucessfully gave {user.name}#{user.discriminator} 1 reputation!")
+    #   else:
+    #     new_rep = curr_rep + 1
+    #     db[str(user.id)] = new_rep
+    #     await ctx.send(f"sucessfully gave {user.name}#{user.discriminator} 1 reputation!")
     
-    @commands.command()
-    async def checkrep(self, ctx, user: discord.Member = None):
-      member = user or ctx.author
-      try:
-        rep = db[str(member.id)]
-      except KeyError:
-        await ctx.send(f"{member.name}#{member.discriminator} has 0 reputation!")
-      else:
-        await ctx.send(f"{member.name}#{member.discriminator} has {rep} reputation!")
+    # @commands.command()
+    # async def checkrep(self, ctx, user: discord.Member = None):
+    #   member = user or ctx.author
+    #   try:
+    #     rep = db[str(member.id)]
+    #   except KeyError:
+    #     await ctx.send(f"{member.name}#{member.discriminator} has 0 reputation!")
+    #   else:
+    #     await ctx.send(f"{member.name}#{member.discriminator} has {rep} reputation!")
     
-    @commands.cooldown(1, 3600, BucketType.user)
-    @commands.command()
-    async def takerep(self, ctx, user: discord.Member):
-      if user == ctx.author:
-        return await ctx.send("You can't -rep yourself!")
-      if user.bot:
-        return await ctx.send("you can't -rep bots!")
-      try:
-        curr_rep = db[str(user.id)]
-      except KeyError:
-        await ctx.send("This user doesn't have any reputation you can take away!")
-      else:
-        if curr_rep <= 0 :
-          return await ctx.send("This use doesn't have any reputation you can take away!")
-        new_rep = curr_rep - 1
-        db[str(user.id)] = new_rep
-        await ctx.send(f"sucessfully took 1 reputation away from {user.name}#{user.discriminator}!")
+    # @commands.cooldown(1, 3600, BucketType.user)
+    # @commands.command()
+    # async def takerep(self, ctx, user: discord.Member):
+    #   if user == ctx.author:
+    #     return await ctx.send("You can't -rep yourself!")
+    #   if user.bot:
+    #     return await ctx.send("you can't -rep bots!")
+    #   try:
+    #     curr_rep = db[str(user.id)]
+    #   except KeyError:
+    #     await ctx.send("This user doesn't have any reputation you can take away!")
+    #   else:
+    #     if curr_rep <= 0 :
+    #       return await ctx.send("This use doesn't have any reputation you can take away!")
+    #     new_rep = curr_rep - 1
+    #     db[str(user.id)] = new_rep
+    #     await ctx.send(f"sucessfully took 1 reputation away from {user.name}#{user.discriminator}!")
       
 
 

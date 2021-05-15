@@ -3,7 +3,7 @@ from discord.ext import commands
 import asyncio
 from utils import default, ticket_utils
 import aiohttp
-from replit import db
+# from replit import db
 
 class Tickets(commands.Cog):
     def __init__(self,bot):
@@ -28,7 +28,7 @@ class Tickets(commands.Cog):
             c = await t.create_text_channel(name=f"ticket-{payload.member.id}", overwrites= overwrites)
             await c.send(f"Hello <@{payload.member.id}>! Please answer these questions in order to recieve your carry. You may close the ticket at anytime with `d!close`")
             await c.send("Please enter the floor you need a carry for (1,2,3,4,5,6, or 7)! You have 60 seconds to response or else this ticket will be closed.")
-            db[str(c.id)] = {"user": payload.member.id}
+            # db[str(c.id)] = {"user": payload.member.id}
             def checkfloor(m):
                 return m.author == payload.member and m.channel.id == c.id and m.content in ["1","2","3","4","5","6","7"]
             try:
@@ -36,7 +36,7 @@ class Tickets(commands.Cog):
             except asyncio.TimeoutError:
                 await c.send("you didn't send any message in this channel for 60 seconds... closing this ticket in 5 seconds")
                 await asyncio.sleep(5)
-                await c.delete()
+                return await c.delete()
                 
         
             else:
@@ -69,7 +69,7 @@ class Tickets(commands.Cog):
             except asyncio.TimeoutError:
                 await c.send("you didn't send any message in this channel for 60 seconds... closing this ticket in 5 seconds")
                 await asyncio.sleep(5)
-                await c.delete()
+                return await c.delete()
             else:
               await c.send(f"Ok! {scoremsg.content.title()} it is. Few more questions, then a carrier will be on their way")
               await c.send("Do you want a bulk carry? (Multiple Carries) answer with y/yes or n/no, you have 60 seconds to respond")
@@ -82,16 +82,10 @@ class Tickets(commands.Cog):
                 await asyncio.sleep(5)
                 return await c.delete()
             else:
-                if bulkmsg.content.lower() in ['y', 'yes']:
-                  to_bulk = True
-                if bulkmsg.content.lower() in ['n', 'no']:
-                  to_bulk = False
+                to_bulk = bool(bulkmsg.content)
                 st = "a bulk carry" if to_bulk else "a non-bulk-carry"
                 await c.send(f"Ok! {st} it is.")
-                await c.send("If you chose bulk-carries in the last question, how many carrys do you need? (just type x if you said no to the last question)")
-                await c.send(f"Ok! {scoremsg.content.title()} it is. Last question, then a carrier will be on their way")
-                await c.send("What is your minecraft IGN? You have 60 seconds to respond.")
-                score = scoremsg.content.lower()
+                await c.send("If you chose bulk-carries in the last question, how many carries do you need? (just type x if you said no to the last question)")
             def checkign(m):
                 return m.author == payload.member and m.channel.id == c.id
             try:
@@ -108,7 +102,7 @@ class Tickets(commands.Cog):
             except asyncio.TimeoutError:
                 await c.send("you didn't send any message in this channel for 60 seconds... closing this ticket in 5 seconds")
                 await asyncio.sleep(5)
-                await c.delete()
+                return await c.delete()
                 
         
             else:
@@ -139,8 +133,7 @@ Requested score - {scoremsg.content.title()}
 IGN - {ignmsg.content}
 Price - {await ticket_utils.give_price(floor, score, to_bulk)}
 Bulk Carry - {to_bulk}
-Number of Carries (for bulk carries) - {noc}
-Price - {await ticket_utils.give_price(floor, score)}""")
+Number of Carries (for bulk carries) - {noc}""")
                 await info_msg.pin()
 
         @commands.Cog.listener()
@@ -196,7 +189,7 @@ Price - {await ticket_utils.give_price(floor, score)}""")
             return
         
         else:
-          del db[str(ctx.channel.id)]
+        #   del db[str(ctx.channel.id)]
           messages = await ctx.channel.history(limit=None, oldest_first=True).flatten()
           ticketContent = " ".join([f"{message.content} | {message.author.name}\n" for message in messages])
         async with aiohttp.ClientSession() as cs:
