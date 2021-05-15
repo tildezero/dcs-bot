@@ -131,7 +131,7 @@ Info for carrier:
 Floor - {msg.content}
 Requested score - {scoremsg.content.title()}
 IGN - {ignmsg.content}
-Price - {await ticket_utils.give_price(floor, score, to_bulk)}
+Price - {await ticket_utils.give_price(floor, scoremsg.content.lower(), to_bulk)}
 Bulk Carry - {to_bulk}
 Number of Carries (for bulk carries) - {noc}""")
                 await info_msg.pin()
