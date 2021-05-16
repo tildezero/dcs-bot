@@ -82,7 +82,8 @@ class Tickets(commands.Cog):
                 await asyncio.sleep(5)
                 return await c.delete()
             else:
-                to_bulk = bool(bulkmsg.content)
+                bm = bulkmsg.content()
+                to_bulk = True if bm in ['y', 'yes'] else False
                 st = "a bulk carry" if to_bulk else "a non-bulk-carry"
                 await c.send(f"Ok! {st} it is.")
                 await c.send("If you chose bulk-carries in the last question, how many carries do you need? (just type x if you said no to the last question)")
