@@ -1,5 +1,6 @@
 import os
 import discord
+import motor.motor_asyncio
 
 from utils import default
 from utils.data import Bot, HelpFormat
@@ -12,6 +13,9 @@ bot = Bot(
     owner_ids=config["owners"], command_attrs=dict(hidden=True), help_command=HelpFormat(),
     intents=discord.Intents.all()
 )
+
+client = motor.motor_asyncio.AsyncIOMotorClient(config['mongo_uri'])
+bot.db = client['bot']
 
 for file in os.listdir("cogs"):
     if file.endswith(".py"):
